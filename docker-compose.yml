@@ -1,0 +1,72 @@
+version: '2'
+services:
+
+    gateway:
+        build: 
+            context: ./gateway
+            dockerfile: Dockerfile
+        container_name: gateway
+        ports:
+            - "8080:8080"
+            - "8443:8443"
+            - "9876:9876"
+        volumes:
+            - ./gateway/system.config.yml:/usr/src/app/config/system.config.yml
+            - ./gateway/gateway.config.yml:/usr/src/app/config/gateway.config.yml
+        depends_on:
+            - notfound
+            - template
+        networks:
+            - gateway
+
+    redis:
+        image: redis
+        container_name: redis
+        ports:
+            - "6379:6379"
+        networks:
+            - gateway
+
+    mongo:
+        image: mongo:3
+        container_name: mongo
+        command: mongod --smallfiles --bind_ip_all
+        volumes:
+            - ./data:/data/db
+        ports:
+            - "27017:27017"
+        networks:
+            - gateway
+
+    notfound:
+        image: shipyardsuite/notfound:develop
+        container_name: notfound
+        ports:
+            - "3003:3003"
+        environment:
+            SERVICE_PORT: 3003
+        networks: 
+            - gateway
+
+    template:
+        build: ./
+        container_name: template
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./:/usr/src/app
+        working_dir: /usr/src/app
+        command: sh -c 'npm install; npm run start:dev'
+        depends_on:
+            - mongo 
+        networks:
+            - gateway
+        environment:
+            NODE_ENV: development
+            REDIS_URL: redis
+            SERVICE_NAME: template
+            DATABASE_URL: ${DATABASE_URL}
+            SERVICE_PORT: ${SERVICE_PORT}
+
+networks:
+    gateway:

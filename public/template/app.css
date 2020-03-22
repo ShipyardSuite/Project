@@ -1,0 +1,31 @@
+.ExampleComponent .success,
+.ExampleComponent .error {
+	padding: 3px 5px;
+	border-radius: 5px;
+	color: white;
+}
+.ExampleComponent .success {
+	background: #3aa57b;
+}
+.ExampleComponent .error {
+	background: #dd2515;
+}
+
+.ExampleComponent span {
+	margin-left: 10px;
+}
+.ExampleComponent {
+	background: white;
+	text-align: center;
+	height: 100vh;
+	width: 100vw;
+	margin: 0 auto;
+	padding: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: auto;
+}
+
+
+/*# sourceMappingURL=app.css.map*/
