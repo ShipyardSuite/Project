@@ -12,11 +12,7 @@ class Home extends Component {
 	}
 
 	render() {
-		return (
-			<div>
-				<ExampleComponent url="/template/api/test" />
-			</div>
-		);
+		return <div>Project...</div>;
 	}
 }
 

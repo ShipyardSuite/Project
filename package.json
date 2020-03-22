@@ -1,7 +1,7 @@
 {
-	"name": "microservice-template",
+	"name": "project",
 	"version": "0.1.0",
-	"description": "Microservice Template for Shipyard GCDN",
+	"description": "Project management service",
 	"main": "dist/server.js",
 	"scripts": {
 		"start": "npm run build:prod && npm run start:prod",
