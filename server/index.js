@@ -3,6 +3,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 /**
  * Main application class.
@@ -14,6 +15,7 @@ class App {
 		this.app = express();
 		this.serviceName = process.env.SERVICE_NAME || 'default';
 		this.servicePort = process.env.SERVICE_PORT || 3000;
+		this.datebase = process.env.DATABASE_URL || 'mongodb://mongo:27017/db';
 	}
 
 	/**
@@ -22,6 +24,7 @@ class App {
 	 */
 	init() {
 		this.config();
+		this.initDB();
 		this.apiRoutes();
 		this.start();
 	}
@@ -33,6 +36,19 @@ class App {
 	config() {
 		this.app.use(require('express').urlencoded({ extended: true }));
 		this.app.use(require('express').json());
+	}
+
+	/**
+	 * Initialize Database
+	 * @method initDB
+	 */
+	initDB() {
+		mongoose.connect(this.datebase, {
+			useNewUrlParser: true,
+			useUnifiedTopology: true,
+			useFindAndModify: false
+		});
+		mongoose.Promise = global.Promise;
 	}
 
 	/**
