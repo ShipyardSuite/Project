@@ -1,6 +1,5 @@
 'use strict';
 
-var SHA256 = require('crypto-js/sha256');
 const mongoose = require('mongoose');
 const { ProjectToken } = require('./../models');
 
@@ -12,7 +11,7 @@ module.exports = (app, serviceName) => {
 
 		const newProjectToken = new ProjectToken();
 		newProjectToken.projectId = id;
-		newProjectToken.token = SHA256(id).toString();
+		newProjectToken.token = newProjectToken.generateToken();
 
 		newProjectToken.save((err, token) => {
 			if (err) {
@@ -50,7 +49,9 @@ module.exports = (app, serviceName) => {
 		const { body } = req;
 		const { id } = body;
 
-		const newToken = SHA256(Date.now()).toString();
+		const newProjectToken = new ProjectToken();
+
+		const newToken = newProjectToken.generateToken();
 
 		ProjectToken.findOneAndUpdate(
 			{
