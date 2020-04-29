@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 const { ProjectToken } = require('./../models');
 
-module.exports = (app, serviceName) => {
+module.exports = (app, logger, serviceName) => {
 	// Create Project-Token
 	app.post(`/${serviceName}/api/token`, (req, res, next) => {
 		const { body } = req;
@@ -15,6 +15,7 @@ module.exports = (app, serviceName) => {
 
 		newProjectToken.save((err, token) => {
 			if (err) {
+				logger.error(err);
 				return res.send({
 					success: false,
 					message: err.message
@@ -31,7 +32,7 @@ module.exports = (app, serviceName) => {
 	app.get(`/${serviceName}/api/token/:projectId`, (req, res, next) => {
 		ProjectToken.find({ projectId: new mongoose.Types.ObjectId(req.params.projectId) }, (err, token) => {
 			if (err) {
-				console.log('error:', err);
+				logger.error(err);
 				return res.send({
 					success: false,
 					message: err
@@ -68,6 +69,7 @@ module.exports = (app, serviceName) => {
 			},
 			(err, token) => {
 				if (err) {
+					logger.error(err);
 					return res.send({
 						success: false,
 						message: err

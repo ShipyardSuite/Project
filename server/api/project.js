@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 const { Project } = require('./../models');
 
-module.exports = (app, serviceName) => {
+module.exports = (app, logger, serviceName) => {
 	// // Create new Project
 	app.post(`/${serviceName}/api/create`, (req, res) => {
 		const { body } = req;
@@ -34,7 +34,7 @@ module.exports = (app, serviceName) => {
 	app.get(`/${serviceName}/api/one/:projectId`, (req, res, next) => {
 		Project.findById(req.params.projectId, (err, project) => {
 			if (err) {
-				console.log('error:', err);
+				logger.error(err);
 				return res.json({
 					success: false,
 					message: err
@@ -55,7 +55,7 @@ module.exports = (app, serviceName) => {
 
 		Project.findOneAndRemove(id, (err, project) => {
 			if (err) {
-				console.log('error:', err);
+				logger.error(err);
 				return res.json({
 					success: false,
 					message: err
@@ -75,7 +75,7 @@ module.exports = (app, serviceName) => {
 
 		Project.findOne({ _id: projectId }, (err, project) => {
 			if (err) {
-				console.log('error:', err);
+				logger.error(err);
 				return res.json({
 					success: false,
 					message: err
@@ -111,6 +111,7 @@ module.exports = (app, serviceName) => {
 	app.get(`/${serviceName}/api/all`, (req, res, next) => {
 		Project.find((err, projects) => {
 			if (err) {
+				logger.error(err);
 				return res.json({
 					success: false,
 					projects
@@ -131,7 +132,7 @@ module.exports = (app, serviceName) => {
 
 		Project.find({ creatorId: userId }, (err, projects) => {
 			if (err) {
-				console.log('error:', err);
+				logger.error(err);
 				return res.json({
 					success: false,
 					message: err
@@ -152,7 +153,7 @@ module.exports = (app, serviceName) => {
 
 		Project.find({ team: userId }, (err, projects) => {
 			if (err) {
-				console.log('error:', err);
+				logger.error(err);
 				return res.json({
 					success: false,
 					message: err
