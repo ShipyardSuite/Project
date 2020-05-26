@@ -1,11 +1,6 @@
-'use strict';
+import User from "./User";
+import Project from './Project';
+import ProjectToken from './ProjectToken';
 
-const User = require('./User');
-const ProjectToken = require('./ProjectToken');
-const Project = require('./Project');
-
-module.exports = {
-	User,
-	ProjectToken,
-	Project
-};
+export default { User, Project, ProjectToken };
+export { User, Project, ProjectToken };

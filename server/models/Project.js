@@ -1,17 +1,18 @@
 'use strict';
 
-const mongoose = require('mongoose');
-const { ObjectId } = require('mongodb');
+import mongoose from "mongoose";
 
-const ProjectSchema = new mongoose.Schema({
-	title: { type: String, required: true },
-	creatorId: { type: ObjectId },
-	team: [ { type: ObjectId } ],
-	players: [ { type: ObjectId } ],
-	lastEdited: {
-		type: Date,
-		default: Date.now()
-	}
-});
+const ProjectSchema = mongoose.Schema({
+    title: { type: String, required: true },
+    creatorId: { type: String },
+    team: [{ type: String }],
+    players: [{ type: String }],
+    lastEdited: {
+        type: Date,
+        default: Date.now()
+    }
+}, { collection: "projects" });
 
-module.exports = mongoose.model('Project', ProjectSchema);
+let ProjectModel = mongoose.model("Project", ProjectSchema);
+
+export default ProjectModel;
