@@ -1,0 +1,199 @@
+version: 2.1
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: shipyardsuite/project
+    docker:
+      - image: circleci/node:12
+
+jobs:
+
+  test:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      
+      # Install dependencies
+      - run:
+          name: "install dependencies"
+          command: "npm install"
+
+      # Run tests
+      - run:
+          name: "run tests"
+          command: "npm test"
+
+  coverage: 
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      # Install dependencies
+      - run:
+          name: "install dependencies"
+          command: "npm install"
+
+      # Run tests
+      - run:
+          name: "run tests"
+          command: "npm test"
+
+      # upload test coverage...
+      - run:
+          name: "upload test coverage to codecov"
+          command: "bash <(curl -s https://codecov.io/bash)"
+
+  build-develop:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      
+      # Install dependencies
+      - run:
+          name: "install dependencies"
+          command: "npm install"
+
+      # build application
+      - run:
+          name: "build application"
+          command: "npm run build"
+      
+      # Build Docker image
+      - run:
+          name: Build Docker image
+          command: |
+            docker build \
+            --build-arg SERVICE_NAME_ARG=$SERVICE_NAME \
+            --build-arg HEALTHCHECK_ID_ARG=$HEALTHCHECK_DEVELOP \
+            -t $IMAGE_NAME:develop . 
+      
+      # Archive Docker image
+      - run:
+          name: Archive Docker image
+          command: docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+
+  build-latest:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      
+      # Install dependencies
+      - run:
+          name: "install dependencies"
+          command: "npm install"
+      
+      # Build Docker image
+      - run:
+          name: Build Docker image
+          command: |
+            docker build \
+            --build-arg SERVICE_NAME_ARG=$SERVICE_NAME \
+            --build-arg HEALTHCHECK_ID_ARG=$HEALTHCHECK_PRODUCTION \
+            -t $IMAGE_NAME:latest . 
+      
+      # Archive Docker image
+      - run:
+          name: Archive Docker image
+          command: docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+
+
+  publish-develop:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+
+      # Load archived Docker image
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      
+      # Publish Image to DockerHub
+      - run:
+          name: Publish Image to DockerHub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push $IMAGE_NAME:develop
+
+  publish-latest:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+
+      # Load archived Docker image
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      
+      # Publish Image to DockerHub
+      - run:
+          name: Publish Image to DockerHub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push $IMAGE_NAME:latest
+
+  deploy-develop:
+    executor: docker-publisher
+    steps:
+
+      # deploy image to digitalocean...
+      - run: 
+          command: |
+            ssh -oStrictHostKeyChecking=no -v circleci@$ip \
+            echo "deployable"
+
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only:
+                - develop
+      - coverage:
+          requires:
+            - test
+      - build-develop:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+      - publish-develop:
+          context: dockerhub
+          requires:
+            - build-develop
+      - deploy-develop:
+          context: digitalocean-develop
+          requires:
+            - publish-develop
+
+      - build-latest:
+          filters:
+            branches:
+              only:
+                - master
+      - publish-latest:
+          context: dockerhub
+          requires:
+            - build-latest
+
+  

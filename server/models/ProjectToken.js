@@ -1,19 +1,19 @@
 'use strict';
 
-const mongoose = require('mongoose');
-const token = require('crypto-token');
+import mongoose from "mongoose";
+import token from 'crypto-token';
 
-const { ObjectId } = require('mongodb');
+const ProjectTokenSchema = mongoose.Schema({
+    projectId: { type: String, required: true },
+    token: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now() },
+    isDeleted: { type: Boolean, default: false }
+}, { collection: "projecttokens" });
 
-const ProjectTokenSchema = new mongoose.Schema({
-	projectId: { type: ObjectId, required: true },
-	token: { type: String, required: true },
-	timestamp: { type: Date, default: Date.now() },
-	isDeleted: { type: Boolean, default: false }
-});
+let ProjectTokenModel = mongoose.model("ProjectToken", ProjectTokenSchema);
 
-ProjectTokenSchema.methods.generateToken = () => {
-	return token(32);
+ProjectTokenModel.generateToken = () => {
+    return token(32);
 };
 
-module.exports = mongoose.model('ProjectToken', ProjectTokenSchema);
+export default ProjectTokenModel;
