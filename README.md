@@ -15,8 +15,8 @@ Project management microservice
 
 | Name                  | Type     | Default | Description                       |
 | --------------------- | -------- | ------- | --------------------------------- |
-| **SERVICE_NAME:**     | `String` | user    | Microservice name.                |
-| **SERVICE_PORT:**     | `Number` | 3009    | Microservice port.                |
+| **SERVICE_NAME:**     | `String` | project | Microservice name.                |
+| **SERVICE_PORT:**     | `Number` | 3007    | Microservice port.                |
 | **DATABASE_URL:**     | `String` |         | Database url.                     |
 
 ## API
